@@ -1,19 +1,20 @@
 classdef Queue < handle
-   properties
-      Size
-      Capacity
-   end
-   methods
-       function obj = Queue(capacity)
-        obj.Capacity = capacity;
-        obj.Size = 0;
+  properties
+    d = 0;
+    size
+    capacity
+  end
+  methods
+    function obj = Queue(capacity)
+      obj.capacity = capacity;
+      obj.size = 0;
+    end
+    function add(obj)
+      if (obj.size < obj.capacity)
+        obj.size = obj.size + 1;
+      else
+        error('Queue size overloading');
       end
-      function add(obj)
-        if (obj.Size < obj.Capacity)
-          obj.Size = obj.Size + 1;
-        else
-          error('Queue size overloading');
-        end
-      end
-   end
+    end
+  end
 end

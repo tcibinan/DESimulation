@@ -1,10 +1,3 @@
-queue = Queue(2);
+state = State(1000, 10, 10, 2, 34);
 
-queue.add();
-queue.Size
-
-queue.add();
-queue.Size
-
-queue.add();
-queue.Size
+state.stats()
