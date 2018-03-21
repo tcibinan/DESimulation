@@ -8,8 +8,10 @@ classdef State < handle
     ns = 0; % successfully handled transactions count
     Q = 0; % summary queued transactions delay
     P = 0; % summary transactions handling time
-    A = [0.4, 1.2, 0.5, 1.7, 0.2]; % placeholder
-    S = [2.0, 0.7, 0.2, 1.1, 3.7]; % placeholder
+    Agen
+    Sgen
+    A
+    S
     handlers
     queue
   end
@@ -24,6 +26,11 @@ classdef State < handle
         obj.handlers(i).p = 1;
       end
       obj.queue = Queue(queueSize);
+
+      obj.Agen = PuassonGenerator(LinearCongruentialGenerator(34238443), 10);
+      obj.Sgen = PuassonGenerator(LinearCongruentialGenerator(432434), 10);
+      obj.A = arrayfun(@(x) obj.Agen.next(), 1:transactionsCount);
+      obj.S = arrayfun(@(x) obj.Sgen.next(), 1:transactionsCount);
     end
 
     function stats = stats(obj)

@@ -1,10 +1,5 @@
 # Discrete-event simulation
 
-To run simulation with octave and preset settings
+Interactive modelling `interactive_model.m` is supported only through the octave gui interface.
 
-```shell
-octave -qf simulation.m
-```
-
-The only way to run simulations with interactive user interface
-and custom settings is to run it right from the octave gui interface.
+Noninteractive modelling analysis `model_analysis.m`
