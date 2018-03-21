@@ -1,4 +1,5 @@
 classdef State < handle
+
   properties
     n % transactions count
     Ms % transactions handling average delay
@@ -12,6 +13,7 @@ classdef State < handle
     handlers
     queue
   end
+
   methods
     function obj = State(transactionsCount, Ms, Ma, handlersCount, queueSize)
       obj.n = transactionsCount;
@@ -23,6 +25,7 @@ classdef State < handle
       end
       obj.queue = Queue(queueSize);
     end
+
     function stats = stats(obj)
       stats.T = sum(obj.A);
       stats.q = obj.queue.d / stats.T;
