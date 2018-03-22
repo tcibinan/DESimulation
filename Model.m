@@ -24,7 +24,7 @@ classdef Model < handle
       obj.Ma = Ma;
       for i = 1:handlersCount
         obj.handlers(i).busy = false;
-        obj.handlers(i).p = 1;
+        obj.handlers(i).p = 0;
         obj.handlers(i).t = NaN;
       end
       obj.queue = Queue(queueSize);
@@ -53,12 +53,15 @@ classdef Model < handle
       disp('Simulation has been started');
 
       while (true)
+        prevT = obj.t;
+        isNewTransaction = false;
         [closestHandlerIndex, closestHandlerTime] = obj.findClosestHandler();
 
         if (isnan(closestHandlerTime))
           if (~isnan(obj.tA))
             obj.retrieveNextTransactionTime();
-            obj.appendTransactionToHandling();
+            obj.queue.push();
+            isNewTransaction = true;
           else
             disp('Simulation has finished');
             break
@@ -67,16 +70,48 @@ classdef Model < handle
           if (~isnan(obj.tA))
             if (obj.tA < closestHandlerTime)
               obj.retrieveNextTransactionTime();
-              obj.appendTransactionToHandling();
+              obj.queue.push();
+              isNewTransaction = true;
             else
               obj.t = closestHandlerTime;
               obj.freeHandler(closestHandlerIndex);
+              obj.ns += 1;
             end
           else
             obj.t = closestHandlerTime;
             obj.freeHandler(closestHandlerIndex);
+            obj.ns += 1;
           end
         end
+
+        % update handling times
+        for index = 1:length(obj.handlers)
+          if (obj.handlers(index).busy)
+            obj.handlers(index).p += obj.t - prevT;
+          end
+        end
+
+        % update queue waiting time
+        if (~isNewTransaction)
+          obj.queue.d += obj.queue.size() * (obj.t - prevT);
+        else
+          obj.queue.d += (obj.queue.size() - 1) * (obj.t - prevT);
+        end
+
+        if (obj.queue.size() > 0)
+          freeHandlersIndexes = obj.findFreeHandlers();
+          transactionsToBeHandled = min(obj.queue.size(), length(freeHandlersIndexes));
+          for index = 1:transactionsToBeHandled
+            obj.queue.pop();
+            obj.handlers(freeHandlersIndexes(index)).busy = true;
+            obj.handlers(freeHandlersIndexes(index)).t = obj.t + obj.Sgen.next();
+          end
+        end
+
+        % disp(['t = ', num2str(obj.t)]);
+        % disp(['queue = ', num2str(obj.queue.size())]);
+        % disp(['handlers = ', num2str([obj.handlers.busy])]);
+        % disp('-----------');
       end
     end
 
@@ -95,16 +130,6 @@ classdef Model < handle
       obj.handlers(index).t = NaN;
     end
 
-    function index = findFreeHandlerIndex(obj)
-      index = NaN;
-      for i = 1:length(obj.handlers)
-        if (~obj.handlers(i).busy)
-          index = i;
-          break
-        end
-      end
-    end
-
     function [closestHandlerIndex, closestHandlerTime] = findClosestHandler(obj)
       closestHandlerIndex = NaN;
       closestHandlerTime = NaN;
@@ -116,15 +141,14 @@ classdef Model < handle
       end
     end
 
-    function appendTransactionToHandling(obj)
-      freeHandlerIndex = obj.findFreeHandlerIndex();
-      if (~isnan(freeHandlerIndex))
-        obj.handlers(freeHandlerIndex).busy = true;
-        obj.handlers(freeHandlerIndex).t = obj.Sgen.next();
-      else
-        % todo: Add to queue
-        disp('Temporary throw transaction to the trash instead of a queue');
+    function [handlersIndexes] = findFreeHandlers(obj)
+      handlersIndexes = [];
+      for i = 1:length(obj.handlers)
+        if (~obj.handlers(i).busy)
+          handlersIndexes = [handlersIndexes i];
+        end
       end
+      % handlersIndexes
     end
 
   end
