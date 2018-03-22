@@ -14,11 +14,12 @@ classdef Model < handle
     tA
     Sgen
     handlers
+    handlingQuant
     queue
   end
 
   methods
-    function obj = Model(transactionsCount, Ms, Ma, handlersCount, queueSize, Agen, Sgen)
+    function obj = Model(transactionsCount, Ms, Ma, handlersCount, handlingQuant, queueSize, Agen, Sgen)
       obj.n = transactionsCount;
       obj.Ms = Ms;
       obj.Ma = Ma;
@@ -26,7 +27,9 @@ classdef Model < handle
         obj.handlers(i).busy = false;
         obj.handlers(i).p = 0;
         obj.handlers(i).t = NaN;
+        obj.handlers(i).cyclic = false;
       end
+      obj.handlingQuant = handlingQuant;
       obj.queue = Queue(queueSize);
 
       obj.Agen = Agen;
@@ -38,7 +41,7 @@ classdef Model < handle
     end
 
     function stats = stats(obj)
-      stats.T = sum(obj.A);
+      stats.T = obj.t;
       stats.q = obj.queue.d / stats.T;
       stats.p = 1 / length(obj.handlers) * sum([obj.handlers.p] ./ stats.T);
       stats.Tq = obj.queue.d / obj.n;
@@ -60,8 +63,10 @@ classdef Model < handle
         if (isnan(closestHandlerTime))
           if (~isnan(obj.tA))
             obj.retrieveNextTransactionTime();
-            obj.queue.push();
-            isNewTransaction = true;
+            if (~obj.queue.isFull())
+              obj.queue.push();
+              isNewTransaction = true;
+            end
           else
             disp('Simulation has finished');
             break
@@ -70,17 +75,17 @@ classdef Model < handle
           if (~isnan(obj.tA))
             if (obj.tA < closestHandlerTime)
               obj.retrieveNextTransactionTime();
-              obj.queue.push();
-              isNewTransaction = true;
+              if (~obj.queue.isFull())
+                obj.queue.push();
+                isNewTransaction = true;
+              end
             else
               obj.t = closestHandlerTime;
-              obj.freeHandler(closestHandlerIndex);
-              obj.ns += 1;
+              isNewTransaction = obj.freeHandler(closestHandlerIndex);
             end
           else
             obj.t = closestHandlerTime;
-            obj.freeHandler(closestHandlerIndex);
-            obj.ns += 1;
+            isNewTransaction = obj.freeHandler(closestHandlerIndex);
           end
         end
 
@@ -93,23 +98,30 @@ classdef Model < handle
 
         % update queue waiting time
         if (~isNewTransaction)
-          obj.queue.d += obj.queue.size() * (obj.t - prevT);
+          obj.queue.d += obj.queue.size * (obj.t - prevT);
         else
-          obj.queue.d += (obj.queue.size() - 1) * (obj.t - prevT);
+          obj.queue.d += (obj.queue.size - 1) * (obj.t - prevT);
         end
 
-        if (obj.queue.size() > 0)
+        if (obj.queue.size > 0)
           freeHandlersIndexes = obj.findFreeHandlers();
-          transactionsToBeHandled = min(obj.queue.size(), length(freeHandlersIndexes));
+          transactionsToBeHandled = min(obj.queue.size, length(freeHandlersIndexes));
           for index = 1:transactionsToBeHandled
             obj.queue.pop();
             obj.handlers(freeHandlersIndexes(index)).busy = true;
-            obj.handlers(freeHandlersIndexes(index)).t = obj.t + obj.Sgen.next();
+            handlingPeriod = obj.Sgen.next();
+            if (handlingPeriod < obj.handlingQuant)
+              obj.handlers(freeHandlersIndexes(index)).t = obj.t + handlingPeriod;
+              obj.handlers(freeHandlersIndexes(index)).cyclic = false;
+            else
+              obj.handlers(freeHandlersIndexes(index)).t = obj.t + obj.handlingQuant;
+              obj.handlers(freeHandlersIndexes(index)).cyclic = true;
+            end
           end
         end
 
         % disp(['t = ', num2str(obj.t)]);
-        % disp(['queue = ', num2str(obj.queue.size())]);
+        % disp(['queue = ', num2str(obj.queue.size]);
         % disp(['handlers = ', num2str([obj.handlers.busy])]);
         % disp('-----------');
       end
@@ -125,9 +137,19 @@ classdef Model < handle
       end
     end
 
-    function freeHandler(obj, index)
+    function isReturnedToQueue = freeHandler(obj, index)
+      isReturnedToQueue = false;
+      if (obj.handlers(index).cyclic)
+        if (~obj.queue.isFull())
+          obj.queue.push();
+          isReturnedToQueue = true;
+        end
+      else
+        obj.ns += 1;
+      end
       obj.handlers(index).busy = false;
       obj.handlers(index).t = NaN;
+      obj.handlers(index).cyclic = false;
     end
 
     function [closestHandlerIndex, closestHandlerTime] = findClosestHandler(obj)
@@ -148,7 +170,6 @@ classdef Model < handle
           handlersIndexes = [handlersIndexes i];
         end
       end
-      % handlersIndexes
     end
 
   end

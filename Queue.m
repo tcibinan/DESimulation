@@ -2,14 +2,13 @@ classdef Queue < handle
 
   properties
     d = 0;
-    size
+    size = 0;
     capacity
   end
 
   methods
     function obj = Queue(capacity)
       obj.capacity = capacity;
-      obj.size = 0;
     end
 
     function push(obj)
@@ -26,6 +25,10 @@ classdef Queue < handle
       else
         error('Queue size is lower than 0');
       end
+    end
+
+    function isFull = isFull(obj)
+      isFull = obj.size == obj.capacity;
     end
 
   end

@@ -11,11 +11,12 @@ function startModulation(source, eventdata, forms)
   Ma = str2num(get(forms.MaInput , 'String'));
   Ms = str2num(get(forms.MsInput , 'String'));
   handlersCount = str2num(get(forms.handlersCountInput , 'String'));
+  handlingQuant = 1;
   queueSize = str2num(get(forms.queueSizeInput , 'String'));
   Agen = PuassonGenerator(LinearCongruentialGenerator(34238443), Ma);
   Sgen = PuassonGenerator(LinearCongruentialGenerator(432434), Ms);
 
-  model = Model(transactionsCount, Ma, Ms, handlersCount, queueSize, Agen, Sgen);
+  model = Model(transactionsCount, Ma, Ms, handlersCount, handlingQuant, queueSize, Agen, Sgen);
 
   model.simulate();
 end
