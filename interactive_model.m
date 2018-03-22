@@ -4,7 +4,7 @@ defaults.Ms = '10';
 defaults.handlersCount = '2';
 defaults.queueSize = '34';
 
-global state forms;
+global model forms;
 
 function startModulation(source, eventdata, forms)
   transactionsCount = str2num(get(forms.transactionsCountInput, 'String'));
@@ -13,7 +13,7 @@ function startModulation(source, eventdata, forms)
   handlersCount = str2num(get(forms.handlersCountInput , 'String'));
   queueSize = str2num(get(forms.queueSizeInput , 'String'));
 
-  state = State(transactionsCount, Ma, Ms, handlersCount, queueSize);
+  model = Model(transactionsCount, Ma, Ms, handlersCount, queueSize);
 end
 
 window = figure(

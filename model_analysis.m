@@ -1,5 +1,3 @@
-state = State(1000, 10, 10, 2, 34);
+model = Model(100, 10, 10, 2, 34);
 
-state.stats()
-
-state.A(1, 1:100)
+model.simulate();
