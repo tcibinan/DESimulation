@@ -14,5 +14,6 @@ classdef PuassonGenerator < handle
     function num = next(obj)
       num = -obj.m * log(obj.lcg.next());
     end
+
   end
 end

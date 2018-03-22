@@ -18,7 +18,7 @@ classdef Model < handle
   end
 
   methods
-    function obj = Model(transactionsCount, Ms, Ma, handlersCount, queueSize)
+    function obj = Model(transactionsCount, Ms, Ma, handlersCount, queueSize, Agen, Sgen)
       obj.n = transactionsCount;
       obj.Ms = Ms;
       obj.Ma = Ma;
@@ -29,12 +29,12 @@ classdef Model < handle
       end
       obj.queue = Queue(queueSize);
 
-      obj.Agen = PuassonGenerator(LinearCongruentialGenerator(34238443), obj.Ma);
+      obj.Agen = Agen;
       obj.A = arrayfun(@(x) obj.Agen.next(), 1:transactionsCount);
       obj.Aindex = 1;
       obj.tA = obj.A(obj.Aindex);
 
-      obj.Sgen = PuassonGenerator(LinearCongruentialGenerator(432434), obj.Ms);
+      obj.Sgen = Sgen;
     end
 
     function stats = stats(obj)

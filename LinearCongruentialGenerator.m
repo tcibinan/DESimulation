@@ -15,5 +15,6 @@ classdef LinearCongruentialGenerator < handle
       obj.ec = mod(obj.a * obj.ec, obj.m);
       num = obj.ec / obj.m;
     end
+
   end
 end
