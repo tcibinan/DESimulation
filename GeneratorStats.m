@@ -6,6 +6,7 @@ classdef GeneratorStats < handle
     expected
     variance
     precision = 0.5;
+    narrowCoefficient = 3;
   end
 
   methods
@@ -37,8 +38,7 @@ classdef GeneratorStats < handle
         x = 0:obj.precision:max(obj.values);
         F = arrayfun(@(x) sum(obj.values < x) / length(obj.values), x);
 
-        narrowCoefficient = 3;
-        narrowedLength = round(length(x) / narrowCoefficient);
+        narrowedLength = round(length(x) / obj.narrowCoefficient);
         narrowedX = linspace(0, max(obj.values), narrowedLength);
         narrowedY = hist(obj.values, narrowedLength) / length(obj.values);
 

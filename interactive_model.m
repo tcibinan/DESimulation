@@ -1,3 +1,16 @@
+global window;
+
+windowX = 1100;
+windowY = 500;
+plotsPosition = [0 0.45 0.6 0.35];
+fontSize = 8;
+headersFontSize = 10;
+numbersFontSize = 10;
+status.waiting = 'Статус: Ожидание.';
+status.modelling = 'Статус: Моделирование в процессе...';
+status.error = 'Статус: Моделирование завершено с ошибкой.';
+status.finished = 'Статус: Моделирование завершено.';
+
 defaults.transactionsCount = '1000';
 defaults.Ma = '10';
 defaults.Ms = '10';
@@ -6,14 +19,6 @@ defaults.queueSize = '34';
 defaults.AgenInit = '42342341';
 defaults.SgenInit = '342452';
 defaults.handlingQuant = '1';
-
-fontSize = 8;
-headersFontSize = 10;
-numbersFontSize = 10;
-status.waiting = 'Статус: Ожидание.';
-status.modelling = 'Статус: Моделирование в процессе...';
-status.error = 'Статус: Моделирование завершено с ошибкой.';
-status.finished = 'Статус: Моделирование завершено.';
 
 function text = text(string, position, fontSize)
   text = uicontrol(
@@ -95,17 +100,58 @@ function startModulation(source, eventdata, forms, status)
 end
 
 function show()
-  disp('hi');
+  disp('Graphic is not implemented yet');
+end
+
+function genStats = retrieveAgenStats(forms)
+  transactionsCount = str2num(get(forms.transactionsCountInput, 'String'));
+  Ma = str2num(get(forms.MaInput , 'String'));
+  Agen = PuassonGenerator(
+    LinearCongruentialGenerator(str2num(get(forms.AgenInitInput, 'String'))),
+    Ma
+  );
+
+  genStats = GeneratorStats(Agen, transactionsCount);
+end
+
+function showAgenDistributionPlot(source, eventdata, forms, position)
+  subplot('Position', position);
+  retrieveAgenStats(forms).distributionPlot(position);
+end
+
+function showAgenDensityHistogram(source, eventdata, forms, position)
+  subplot('Position', position);
+  retrieveAgenStats(forms).densityHistogram(position);
+end
+
+function genStats = retrieveSgenStats(forms)
+  transactionsCount = str2num(get(forms.transactionsCountInput, 'String'));
+  Ms = str2num(get(forms.MsInput , 'String'));
+  Sgen = PuassonGenerator(
+    LinearCongruentialGenerator(str2num(get(forms.SgenInitInput, 'String'))),
+    Ms
+  );
+
+  genStats = GeneratorStats(Sgen, transactionsCount);
+end
+
+function showSgenDistributionPlot(source, eventdata, forms, position)
+  subplot('Position', position);
+  retrieveSgenStats(forms).distributionPlot(position);
+end
+
+function showSgenDensityHistogram(source, eventdata, forms, position)
+  subplot('Position', position);
+  retrieveSgenStats(forms).densityHistogram(position);
 end
 
 window = figure(
   'Name', 'DESimulation',
   'NumberTitle', 'off',
-  'Position', [0 0 1100 500]
+  'Position', [0 0 windowX windowY]
 );
 
 % Modulation inputs labels
-
 transactionsCountText = text('Количество транзактов', [0 0 0.4 0.05], fontSize);
 MaText = text('Среднее время поступления заявки', [0 0.05 0.4 0.05], fontSize);
 MsText = text('Среднее время обработки заявки', [0 0.1 0.4 0.05], fontSize);
@@ -116,7 +162,6 @@ AgenInitText = text('Начальное значение генератора в
 SgenInitText = text('Начальное значение генератора времени обработки транзактов', [0 0.35 0.4 0.05], fontSize);
 
 % Modulation inputs
-
 forms.transactionsCountInput = input(defaults.transactionsCount, [0.4 0 0.2 0.05]);
 forms.MaInput = input(defaults.Ma, [0.4 0.05 0.2 0.05]);
 forms.MsInput = input(defaults.Ms, [0.4 0.1 0.2 0.05]);
@@ -126,22 +171,7 @@ forms.handlingQuantInput = input(defaults.handlingQuant, [0.4 0.25 0.2 0.05]);
 forms.AgenInitInput = input(defaults.AgenInit, [0.4 0.3 0.2 0.05]);
 forms.SgenInitInput = input(defaults.SgenInit, [0.4 0.35 0.2 0.05]);
 
-% Graphics btns
-
-btn('времени поступления', [0.6, 0.45, 0.2, 0.05], @show, fontSize);
-btn('времени обработки', [0.8, 0.45, 0.2, 0.05], @show, fontSize);
-text('Графики функций распределения', [0.6, 0.5, 0.4, 0.05], fontSize);
-btn('времени поступления', [0.6, 0.55, 0.2, 0.05], @show, fontSize);
-btn('времени обработки', [0.8, 0.55, 0.2, 0.05], @show, fontSize);
-text('Графики плотностей распределения', [0.6, 0.6, 0.4, 0.05], fontSize);
-btn('График по времени числа требований в очереди', [0.6, 0.65, 0.4, 0.05], @show, fontSize);
-btn('График по времени числа требований в системе', [0.6, 0.7, 0.4, 0.05], @show, fontSize);
-btn('График по времени среднего числа требований в очереди', [0.6, 0.75, 0.4, 0.05], @show, fontSize);
-btn('График по времени среднего числа требований в системе', [0.6, 0.8, 0.4, 0.05], @show, fontSize);
-btn('График по времени коэффициента использования системы', [0.6, 0.85, 0.4, 0.05], @show, fontSize);
-
 % Stats labels
-
 TText = text('Общее время работы', [0.6, 0, 0.3, 0.05], fontSize);
 pText = text('Коэффициент использования системы', [0.6, 0.05, 0.3, 0.05], fontSize);
 TqText = text('Cреднее время ожидания заявки в очереди', [0.6, 0.1, 0.3, 0.05], fontSize);
@@ -152,7 +182,6 @@ CaText = text('Абсолютная пропускная способность'
 CrText = text('Относительная пропускная способность', [0.6, 0.35, 0.3, 0.05], fontSize);
 
 % Stats values
-
 forms.TValue = text('NaN', [0.9, 0, 0.1, 0.05], numbersFontSize);
 forms.pValue = text('NaN', [0.9, 0.05, 0.1, 0.05], numbersFontSize);
 forms.TqValue = text('NaN', [0.9, 0.1, 0.1, 0.05], numbersFontSize);
@@ -162,7 +191,19 @@ forms.NsValue = text('NaN', [0.9, 0.25, 0.1, 0.05], numbersFontSize);
 forms.CaValue = text('NaN', [0.9, 0.3, 0.1, 0.05], numbersFontSize);
 forms.CrValue = text('NaN', [0.9, 0.35, 0.1, 0.05], numbersFontSize);
 
-% Modulation controls
+% Graphics btns
+btn('времени поступления', [0.6, 0.45, 0.2, 0.05], {@showAgenDistributionPlot, forms, plotsPosition} , fontSize);
+btn('времени обработки', [0.8, 0.45, 0.2, 0.05], {@showSgenDistributionPlot, forms, plotsPosition}, fontSize);
+text('Графики функций распределения', [0.6, 0.5, 0.4, 0.05], fontSize);
+btn('времени поступления', [0.6, 0.55, 0.2, 0.05], {@showAgenDensityHistogram, forms, plotsPosition}, fontSize);
+btn('времени обработки', [0.8, 0.55, 0.2, 0.05], {@showSgenDensityHistogram, forms, plotsPosition}, fontSize);
+text('Гистограммы плотностей распределения', [0.6, 0.6, 0.4, 0.05], fontSize);
+btn('График по времени числа требований в очереди', [0.6, 0.65, 0.4, 0.05], @show, fontSize);
+btn('График по времени числа требований в системе', [0.6, 0.7, 0.4, 0.05], @show, fontSize);
+btn('График по времени среднего числа требований в очереди', [0.6, 0.75, 0.4, 0.05], @show, fontSize);
+btn('График по времени среднего числа требований в системе', [0.6, 0.8, 0.4, 0.05], @show, fontSize);
+btn('График по времени коэффициента использования системы', [0.6, 0.85, 0.4, 0.05], @show, fontSize);
 
+% Modulation controls
 forms.statusText = text(status.waiting, [0.2 0.9 0.8 0.1], headersFontSize);
 forms.startModulationBtn = btn('Начать', [0 0.9 0.2 0.1], {@startModulation, forms, status});
