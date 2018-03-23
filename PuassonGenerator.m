@@ -15,5 +15,9 @@ classdef PuassonGenerator < handle
       num = -obj.m * log(obj.lcg.next());
     end
 
+    function clone = clone(obj)
+      clone = PuassonGenerator(obj.lcg.clone(), obj.m);
+    end
+
   end
 end

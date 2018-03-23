@@ -16,5 +16,9 @@ classdef LinearCongruentialGenerator < handle
       num = obj.ec / obj.m;
     end
 
+    function clone = clone(obj)
+      clone = LinearCongruentialGenerator(obj.ec);
+    end
+
   end
 end

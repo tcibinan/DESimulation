@@ -8,10 +8,52 @@ defaults.SgenInit = '342452';
 defaults.handlingQuant = '1';
 
 fontSize = 8;
+headersFontSize = 10;
+numbersFontSize = 10;
 status.waiting = 'Статус: Ожидание.';
 status.modelling = 'Статус: Моделирование в процессе...';
 status.error = 'Статус: Моделирование завершено с ошибкой.';
 status.finished = 'Статус: Моделирование завершено.';
+
+function text = text(string, position, fontSize)
+  text = uicontrol(
+    'Style', 'text',
+    'String', string,
+    'Units', 'normalized',
+    'Position', position,
+    'FontSize', fontSize
+  );
+end
+
+function input = input(defaultValue, position)
+  input = uicontrol(
+    'Style', 'edit',
+    'String', defaultValue,
+    'Units', 'normalized',
+    'Position', position
+  );
+end
+
+function btn = btn(string, position, callback, fontSize)
+  if (nargin < 4)
+    btn = uicontrol(
+      'Style', 'pushbutton',
+      'String', string,
+      'Units', 'normalized',
+      'Position', position,
+      'Callback', callback
+    );
+  else
+    btn = uicontrol(
+      'Style', 'pushbutton',
+      'String', string,
+      'Units', 'normalized',
+      'Position', position,
+      'Callback', callback,
+      'FontSize', fontSize
+    );
+  end
+end
 
 function startModulation(source, eventdata, forms, status)
   transactionsCount = str2num(get(forms.transactionsCountInput, 'String'));
@@ -52,258 +94,75 @@ function startModulation(source, eventdata, forms, status)
 
 end
 
+function show()
+  disp('hi');
+end
+
 window = figure(
   'Name', 'DESimulation',
   'NumberTitle', 'off',
-  'Position', [0 0 1000 500]
+  'Position', [0 0 1100 500]
 );
 
 % Modulation inputs labels
 
-transactionsCountText = uicontrol(
-  'Style', 'text',
-  'String', 'Количество транзактов',
-  'Units', 'normalized',
-  'Position', [0 0 0.4 0.05],
-  'FontSize', fontSize
-);
-MaText = uicontrol(
-  'Style', 'text',
-  'String', 'Среднее время поступления заявки',
-  'Units', 'normalized',
-  'Position', [0 0.05 0.4 0.05],
-  'FontSize', fontSize
-);
-MsText = uicontrol(
-  'Style', 'text',
-  'String', 'Среднее время обработки заявки',
-  'Units', 'normalized',
-  'Position', [0 0.1 0.4 0.05],
-  'FontSize', fontSize
-);
-handlersCountText = uicontrol(
-  'Style', 'text',
-  'String', 'Количество устройств',
-  'Units', 'normalized',
-  'Position', [0 0.15 0.4 0.05],
-  'FontSize', fontSize
-);
-queueSizeText = uicontrol(
-  'Style', 'text',
-  'String', 'Емкость накопителя',
-  'Units', 'normalized',
-  'Position', [0 0.2 0.4 0.05],
-  'FontSize', fontSize
-);
-handlingQuantText = uicontrol(
-  'Style', 'text',
-  'String', 'Циклический квант',
-  'Units', 'normalized',
-  'Position', [0 0.25 0.4 0.05],
-  'FontSize', fontSize
-);
-AgenInitText = uicontrol(
-  'Style', 'text',
-  'String', 'Начальное значение генератора времени поступления транзактов',
-  'Units', 'normalized',
-  'Position', [0 0.3 0.4 0.05],
-  'FontSize', fontSize
-);
-SgenInitText = uicontrol(
-  'Style', 'text',
-  'String', 'Начальное значение генератора времени обработки транзактов',
-  'Units', 'normalized',
-  'Position', [0 0.35 0.4 0.05],
-  'FontSize', fontSize
-);
+transactionsCountText = text('Количество транзактов', [0 0 0.4 0.05], fontSize);
+MaText = text('Среднее время поступления заявки', [0 0.05 0.4 0.05], fontSize);
+MsText = text('Среднее время обработки заявки', [0 0.1 0.4 0.05], fontSize);
+handlersCountText = text('Количество устройств', [0 0.15 0.4 0.05], fontSize);
+queueSizeText = text('Емкость накопителя', [0 0.2 0.4 0.05], fontSize);
+handlingQuantText = text('Циклический квант', [0 0.25 0.4 0.05], fontSize);
+AgenInitText = text('Начальное значение генератора времени поступления транзактов', [0 0.3 0.4 0.05], fontSize);
+SgenInitText = text('Начальное значение генератора времени обработки транзактов', [0 0.35 0.4 0.05], fontSize);
 
 % Modulation inputs
 
-forms.transactionsCountInput = uicontrol(
-  'Style', 'edit',
-  'String', defaults.transactionsCount,
-  'Units', 'normalized',
-  'Position', [0.4 0 0.2 0.05]
-);
-forms.MaInput = uicontrol(
-  'Style', 'edit',
-  'String', defaults.Ma,
-  'Units', 'normalized',
-  'Position', [0.4 0.05 0.2 0.05]
-);
-forms.MsInput = uicontrol(
-  'Style', 'edit',
-  'String', defaults.Ms,
-  'Units', 'normalized',
-  'Position', [0.4 0.1 0.2 0.05]
-);
-forms.handlersCountInput = uicontrol(
-  'Style', 'edit',
-  'String', defaults.handlersCount,
-  'Units', 'normalized',
-  'Position', [0.4 0.15 0.2 0.05]
-);
-forms.queueSizeInput = uicontrol(
-  'Style', 'edit',
-  'String', defaults.queueSize,
-  'Units', 'normalized',
-  'Position', [0.4 0.2 0.2 0.05]
-);
-forms.handlingQuantInput = uicontrol(
-  'Style', 'edit',
-  'String', defaults.handlingQuant,
-  'Units', 'normalized',
-  'Position', [0.4 0.25 0.2 0.05]
-);
-forms.AgenInitInput = uicontrol(
-  'Style', 'edit',
-  'String', defaults.AgenInit,
-  'Units', 'normalized',
-  'Position', [0.4 0.3 0.2 0.05]
-);
-forms.SgenInitInput = uicontrol(
-  'Style', 'edit',
-  'String', defaults.SgenInit,
-  'Units', 'normalized',
-  'Position', [0.4 0.35 0.2 0.05]
-);
+forms.transactionsCountInput = input(defaults.transactionsCount, [0.4 0 0.2 0.05]);
+forms.MaInput = input(defaults.Ma, [0.4 0.05 0.2 0.05]);
+forms.MsInput = input(defaults.Ms, [0.4 0.1 0.2 0.05]);
+forms.handlersCountInput = input(defaults.handlersCount, [0.4 0.15 0.2 0.05]);
+forms.queueSizeInput = input(defaults.queueSize, [0.4 0.2 0.2 0.05]);
+forms.handlingQuantInput = input(defaults.handlingQuant, [0.4 0.25 0.2 0.05]);
+forms.AgenInitInput = input(defaults.AgenInit, [0.4 0.3 0.2 0.05]);
+forms.SgenInitInput = input(defaults.SgenInit, [0.4 0.35 0.2 0.05]);
+
+% Graphics btns
+
+btn('времени поступления', [0.6, 0.45, 0.2, 0.05], @show, fontSize);
+btn('времени обработки', [0.8, 0.45, 0.2, 0.05], @show, fontSize);
+text('Графики функций распределения', [0.6, 0.5, 0.4, 0.05], fontSize);
+btn('времени поступления', [0.6, 0.55, 0.2, 0.05], @show, fontSize);
+btn('времени обработки', [0.8, 0.55, 0.2, 0.05], @show, fontSize);
+text('Графики плотностей распределения', [0.6, 0.6, 0.4, 0.05], fontSize);
+btn('График по времени числа требований в очереди', [0.6, 0.65, 0.4, 0.05], @show, fontSize);
+btn('График по времени числа требований в системе', [0.6, 0.7, 0.4, 0.05], @show, fontSize);
+btn('График по времени среднего числа требований в очереди', [0.6, 0.75, 0.4, 0.05], @show, fontSize);
+btn('График по времени среднего числа требований в системе', [0.6, 0.8, 0.4, 0.05], @show, fontSize);
+btn('График по времени коэффициента использования системы', [0.6, 0.85, 0.4, 0.05], @show, fontSize);
 
 % Stats labels
 
-TText = uicontrol(
-  'Style', 'text',
-  'String', 'Общее время работы',
-  'Units', 'normalized',
-  'Position', [0.6, 0, 0.3, 0.05],
-  'FontSize', fontSize
-);
-qText = uicontrol(
-  'Style', 'text',
-  'String', '',
-  'Units', 'normalized',
-  'Position', [0.6, 0.05, 0.3, 0.05],
-  'FontSize', fontSize
-);
-pText = uicontrol(
-  'Style', 'text',
-  'String', 'Коэффициент использования системы',
-  'Units', 'normalized',
-  'Position', [0.6, 0.1, 0.3, 0.05],
-  'FontSize', fontSize
-);
-TqText = uicontrol(
-  'Style', 'text',
-  'String', 'Cреднее время ожидания заявки в очереди',
-  'Units', 'normalized',
-  'Position', [0.6, 0.15, 0.3, 0.05],
-  'FontSize', fontSize
-);
-TsText = uicontrol(
-  'Style', 'text',
-  'String', 'Cреднее время пребывания заявки в системе',
-  'Units', 'normalized',
-  'Position', [0.6, 0.2, 0.3, 0.05],
-  'FontSize', fontSize
-);
-NqText = uicontrol(
-  'Style', 'text',
-  'String', 'Cреднее по времени число требований в очереди',
-  'Units', 'normalized',
-  'Position', [0.6, 0.25, 0.3, 0.05],
-  'FontSize', fontSize
-);
-NsText = uicontrol(
-  'Style', 'text',
-  'String', 'Cреднее по времени число требований в системе',
-  'Units', 'normalized',
-  'Position', [0.6, 0.3, 0.3, 0.05],
-  'FontSize', fontSize
-);
-CaText = uicontrol(
-  'Style', 'text',
-  'String', 'Абсолютная пропускная способность',
-  'Units', 'normalized',
-  'Position', [0.6, 0.35, 0.3, 0.05],
-  'FontSize', fontSize
-);
-CrText = uicontrol(
-  'Style', 'text',
-  'String', 'Относительная пропускная способность',
-  'Units', 'normalized',
-  'Position', [0.6, 0.4, 0.3, 0.05],
-  'FontSize', fontSize
-);
+TText = text('Общее время работы', [0.6, 0, 0.3, 0.05], fontSize);
+pText = text('Коэффициент использования системы', [0.6, 0.05, 0.3, 0.05], fontSize);
+TqText = text('Cреднее время ожидания заявки в очереди', [0.6, 0.1, 0.3, 0.05], fontSize);
+TsText = text('Cреднее время пребывания заявки в системе', [0.6, 0.15, 0.3, 0.05], fontSize);
+NqText = text('Cреднее по времени число требований в очереди', [0.6, 0.2, 0.3, 0.05], fontSize);
+NsText = text('Cреднее по времени число требований в системе', [0.6, 0.25, 0.3, 0.05], fontSize);
+CaText = text('Абсолютная пропускная способность', [0.6, 0.3, 0.3, 0.05], fontSize);
+CrText = text('Относительная пропускная способность', [0.6, 0.35, 0.3, 0.05], fontSize);
 
 % Stats values
 
-forms.TValue = uicontrol(
-  'Style', 'text',
-  'String', 'NaN',
-  'Units', 'normalized',
-  'Position', [0.9, 0, 0.1, 0.05]
-);
-forms.qValue = uicontrol(
-  'Style', 'text',
-  'String', 'NaN',
-  'Units', 'normalized',
-  'Position', [0.9, 0.05, 0.1, 0.05]
-);
-forms.pValue = uicontrol(
-  'Style', 'text',
-  'String', 'NaN',
-  'Units', 'normalized',
-  'Position', [0.9, 0.1, 0.1, 0.05]
-);
-forms.TqValue = uicontrol(
-  'Style', 'text',
-  'String', 'NaN',
-  'Units', 'normalized',
-  'Position', [0.9, 0.15, 0.1, 0.05]
-);
-forms.TsValue = uicontrol(
-  'Style', 'text',
-  'String', 'NaN',
-  'Units', 'normalized',
-  'Position', [0.9, 0.2, 0.1, 0.05]
-);
-forms.NqValue = uicontrol(
-  'Style', 'text',
-  'String', 'NaN',
-  'Units', 'normalized',
-  'Position', [0.9, 0.25, 0.1, 0.05]
-);
-forms.NsValue = uicontrol(
-  'Style', 'text',
-  'String', 'NaN',
-  'Units', 'normalized',
-  'Position', [0.9, 0.3, 0.1, 0.05]
-);
-forms.CaValue = uicontrol(
-  'Style', 'text',
-  'String', 'NaN',
-  'Units', 'normalized',
-  'Position', [0.9, 0.35, 0.1, 0.05]
-);
-forms.CrValue = uicontrol(
-  'Style', 'text',
-  'String', 'NaN',
-  'Units', 'normalized',
-  'Position', [0.9, 0.4, 0.1, 0.05]
-);
+forms.TValue = text('NaN', [0.9, 0, 0.1, 0.05], numbersFontSize);
+forms.pValue = text('NaN', [0.9, 0.05, 0.1, 0.05], numbersFontSize);
+forms.TqValue = text('NaN', [0.9, 0.1, 0.1, 0.05], numbersFontSize);
+forms.TsValue = text('NaN', [0.9, 0.15, 0.1, 0.05], numbersFontSize);
+forms.NqValue = text('NaN', [0.9, 0.2, 0.1, 0.05], numbersFontSize);
+forms.NsValue = text('NaN', [0.9, 0.25, 0.1, 0.05], numbersFontSize);
+forms.CaValue = text('NaN', [0.9, 0.3, 0.1, 0.05], numbersFontSize);
+forms.CrValue = text('NaN', [0.9, 0.35, 0.1, 0.05], numbersFontSize);
 
 % Modulation controls
 
-forms.statusText = uicontrol(
-  'Style', 'text',
-  'String', status.waiting,
-  'Units', 'normalized',
-  'Position', [0.2 0.9 0.8 0.1]
-);
-
-forms.startModulationBtn = uicontrol(
-  'Style', 'pushbutton',
-  'String', 'Начать',
-  'Units', 'normalized',
-  'Position', [0 0.9 0.2 0.1],
-  'Callback', {@startModulation, forms, status}
-);
+forms.statusText = text(status.waiting, [0.2 0.9 0.8 0.1], headersFontSize);
+forms.startModulationBtn = btn('Начать', [0 0.9 0.2 0.1], {@startModulation, forms, status});

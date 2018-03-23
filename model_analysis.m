@@ -11,4 +11,4 @@ model = Model(transactionsCount, Ms, Ma, handlersCount, handlingQuant, queueSize
 
 model.simulate();
 
-model.stats()
+stats = model.stats();
