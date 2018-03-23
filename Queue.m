@@ -2,7 +2,7 @@ classdef Queue < handle
 
   properties
     d = 0;
-    size = 0;
+    transactions = [];
     capacity
   end
 
@@ -11,24 +11,29 @@ classdef Queue < handle
       obj.capacity = capacity;
     end
 
-    function push(obj)
-      if (obj.size < obj.capacity)
-        obj.size = obj.size + 1;
+    function push(obj, transaction)
+      if (obj.size() < obj.capacity)
+        obj.transactions = [obj.transactions transaction];
       else
         error('Queue size is greater than the capacity');
       end
     end
 
-    function pop(obj)
-      if (obj.size > 0)
-        obj.size = obj.size - 1;
+    function size = size(obj)
+      size = length(obj.transactions);
+    end
+
+    function transaction = pop(obj)
+      if (obj.size() > 0)
+        transaction = obj.transactions(1);
+        obj.transactions = obj.transactions(2:length(obj.transactions));
       else
         error('Queue size is lower than 0');
       end
     end
 
     function isFull = isFull(obj)
-      isFull = obj.size == obj.capacity;
+      isFull = obj.size() == obj.capacity;
     end
 
   end

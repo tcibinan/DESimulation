@@ -16,6 +16,7 @@ classdef Model < handle
     handlers
     handlingQuant
     queue
+    w
   end
 
   methods
@@ -27,16 +28,16 @@ classdef Model < handle
         obj.handlers(i).busy = false;
         obj.handlers(i).p = 0;
         obj.handlers(i).t = NaN;
+        obj.handlers(i).transaction = NaN;
         obj.handlers(i).cyclic = false;
       end
       obj.handlingQuant = handlingQuant;
       obj.queue = Queue(queueSize);
-
+      obj.w = zeros(1, transactionsCount);
       obj.Agen = Agen;
       obj.A = arrayfun(@(x) obj.Agen.next(), 1:transactionsCount);
       obj.Aindex = 1;
       obj.tA = obj.A(obj.Aindex);
-
       obj.Sgen = Sgen;
     end
 
@@ -45,14 +46,18 @@ classdef Model < handle
       stats.q = obj.queue.d / stats.T;
       stats.p = 1 / length(obj.handlers) * sum([obj.handlers.p] ./ stats.T);
       stats.Tq = obj.queue.d / obj.n;
-      stats.Ts = stats.Tq + obj.Ms;
-      stats.Nq = stats.Tq / obj.Ma;
+      stats.Ts = sum(obj.w) / obj.n;
+      stats.Nq = obj.queue.d / stats.T;
+      % Ns should be calculated using integral.
       stats.Ns = stats.Ts / obj.Ma;
+      % stats.Ns = obj.lt / stats.T; % todo: Find an easier way to do that.
       stats.Ca = obj.ns / stats.T;
       stats.Cr = obj.ns / obj.n;
     end
 
     function simulate(obj)
+      % todo: Extract ::step and ::isFinished methods from ::simulate.
+      % todo: Add graphs accumulation for each step call.
       disp('Simulation has been started');
 
       while (true)
@@ -64,7 +69,7 @@ classdef Model < handle
           if (~isnan(obj.tA))
             obj.retrieveNextTransactionTime();
             if (~obj.queue.isFull())
-              obj.queue.push();
+              obj.queue.push(obj.Aindex - 1);
               isNewTransaction = true;
             end
           else
@@ -76,7 +81,7 @@ classdef Model < handle
             if (obj.tA < closestHandlerTime)
               obj.retrieveNextTransactionTime();
               if (~obj.queue.isFull())
-                obj.queue.push();
+                obj.queue.push(obj.Aindex - 1);
                 isNewTransaction = true;
               end
             else
@@ -107,14 +112,16 @@ classdef Model < handle
           freeHandlersIndexes = obj.findFreeHandlers();
           transactionsToBeHandled = min(obj.queue.size, length(freeHandlersIndexes));
           for index = 1:transactionsToBeHandled
-            obj.queue.pop();
+            transaction = obj.queue.pop();
             obj.handlers(freeHandlersIndexes(index)).busy = true;
             handlingPeriod = obj.Sgen.next();
             if (handlingPeriod < obj.handlingQuant)
               obj.handlers(freeHandlersIndexes(index)).t = obj.t + handlingPeriod;
+              obj.handlers(freeHandlersIndexes(index)).transaction = transaction;
               obj.handlers(freeHandlersIndexes(index)).cyclic = false;
             else
               obj.handlers(freeHandlersIndexes(index)).t = obj.t + obj.handlingQuant;
+              obj.handlers(freeHandlersIndexes(index)).transaction = transaction;
               obj.handlers(freeHandlersIndexes(index)).cyclic = true;
             end
           end
@@ -141,15 +148,18 @@ classdef Model < handle
       isReturnedToQueue = false;
       if (obj.handlers(index).cyclic)
         if (~obj.queue.isFull())
-          obj.queue.push();
+          obj.queue.push(obj.handlers(index).transaction);
           isReturnedToQueue = true;
         end
       else
+        transaction = obj.handlers(index).transaction;
+        obj.w(transaction) = obj.t - sum(obj.A(1:transaction));
         obj.ns += 1;
       end
       obj.handlers(index).busy = false;
       obj.handlers(index).t = NaN;
       obj.handlers(index).cyclic = false;
+      obj.handlers(index).transaction = NaN;
     end
 
     function [closestHandlerIndex, closestHandlerTime] = findClosestHandler(obj)
