@@ -1,8 +1,8 @@
-global window;
+global model;
 
 windowX = 1100;
 windowY = 500;
-plotsPosition = [0 0.45 0.6 0.35];
+plotsPosition = [0.05 0.45 0.6 0.35];
 fontSize = 8;
 headersFontSize = 10;
 numbersFontSize = 10;
@@ -76,6 +76,7 @@ function startModulation(source, eventdata, forms, status)
     Ms
   );
 
+  global model;
   model = Model(transactionsCount, Ma, Ms, handlersCount, handlingQuant, queueSize, Agen, Sgen);
 
   set(forms.statusText, 'String', status.modelling);
@@ -145,6 +146,36 @@ function showSgenDensityHistogram(source, eventdata, forms, position)
   retrieveSgenStats(forms).densityHistogram(position);
 end
 
+function showQueueSizePlot(source, eventdata, position)
+  subplot('Position', position);
+  global model;
+  model.queueSizePlot();
+end
+
+function showAverageQueueSizePlot(source, eventdata, position)
+  subplot('Position', position);
+  global model;
+  model.averageQueueSizePlot();
+end
+
+function showTransactionsInModelPlot(source, eventdata, position)
+  subplot('Position', position);
+  global model;
+  model.transactionsInModelPlot();
+end
+
+function showAverageTransactionsInModelPlot(source, eventdata, position)
+  subplot('Position', position);
+  global model;
+  model.averageTransactionsInModelPlot();
+end
+
+function showSystemUsagePlot(source, eventdata, position)
+  subplot('Position', position);
+  global model;
+  model.systemUsagePlot();
+end
+
 window = figure(
   'Name', 'DESimulation',
   'NumberTitle', 'off',
@@ -198,11 +229,11 @@ text('Графики функций распределения', [0.6, 0.5, 0.4,
 btn('времени поступления', [0.6, 0.55, 0.2, 0.05], {@showAgenDensityHistogram, forms, plotsPosition}, fontSize);
 btn('времени обработки', [0.8, 0.55, 0.2, 0.05], {@showSgenDensityHistogram, forms, plotsPosition}, fontSize);
 text('Гистограммы плотностей распределения', [0.6, 0.6, 0.4, 0.05], fontSize);
-btn('График по времени числа требований в очереди', [0.6, 0.65, 0.4, 0.05], @show, fontSize);
-btn('График по времени числа требований в системе', [0.6, 0.7, 0.4, 0.05], @show, fontSize);
-btn('График по времени среднего числа требований в очереди', [0.6, 0.75, 0.4, 0.05], @show, fontSize);
-btn('График по времени среднего числа требований в системе', [0.6, 0.8, 0.4, 0.05], @show, fontSize);
-btn('График по времени коэффициента использования системы', [0.6, 0.85, 0.4, 0.05], @show, fontSize);
+btn('График по времени числа требований в очереди', [0.6, 0.65, 0.4, 0.05], {@showQueueSizePlot, plotsPosition}, fontSize);
+btn('График по времени числа требований в системе', [0.6, 0.7, 0.4, 0.05], {@showTransactionsInModelPlot, plotsPosition}, fontSize);
+btn('График по времени среднего числа требований в очереди', [0.6, 0.75, 0.4, 0.05], {@showAverageQueueSizePlot, plotsPosition}, fontSize);
+btn('График по времени среднего числа требований в системе', [0.6, 0.8, 0.4, 0.05], {@showAverageTransactionsInModelPlot, plotsPosition}, fontSize);
+btn('График по времени коэффициента использования системы', [0.6, 0.85, 0.4, 0.05], {@showSystemUsagePlot, plotsPosition}, fontSize);
 
 % Modulation controls
 forms.statusText = text(status.waiting, [0.2 0.9 0.8 0.1], headersFontSize);

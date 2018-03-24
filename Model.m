@@ -17,6 +17,10 @@ classdef Model < handle
     handlingQuant
     queue
     w
+    times = []; % vector of each event time
+    queueSizePerTime = []; % vector of queue size of each event time
+    transactionsInHandlersPerTime = []; % vector of numbers of transactions being handled for each event time
+    systemUsagePerTime = []; % vector of system usage stat for each event time
   end
 
   methods
@@ -56,8 +60,6 @@ classdef Model < handle
     end
 
     function simulate(obj)
-      % todo: Extract ::step and ::isFinished methods from ::simulate.
-      % todo: Add graphs accumulation for each step call.
       disp('Simulation has been started');
 
       while (true)
@@ -65,6 +67,7 @@ classdef Model < handle
         isNewTransaction = false;
         [closestHandlerIndex, closestHandlerTime] = obj.findClosestHandler();
 
+        % determine next system time and handle the received event
         if (isnan(closestHandlerTime))
           if (~isnan(obj.tA))
             obj.retrieveNextTransactionTime();
@@ -108,6 +111,7 @@ classdef Model < handle
           obj.queue.d += (obj.queue.size - 1) * (obj.t - prevT);
         end
 
+        % move transactions from queue to empty handlers
         if (obj.queue.size > 0)
           freeHandlersIndexes = obj.findFreeHandlers();
           transactionsToBeHandled = min(obj.queue.size, length(freeHandlersIndexes));
@@ -127,10 +131,11 @@ classdef Model < handle
           end
         end
 
-        % disp(['t = ', num2str(obj.t)]);
-        % disp(['queue = ', num2str(obj.queue.size]);
-        % disp(['handlers = ', num2str([obj.handlers.busy])]);
-        % disp('-----------');
+        % Stats per time recordings
+        obj.times = [obj.times, obj.t];
+        obj.queueSizePerTime = [obj.queueSizePerTime, obj.queue.size];
+        obj.transactionsInHandlersPerTime = [obj.transactionsInHandlersPerTime, sum([obj.handlers.busy])];
+        obj.systemUsagePerTime = [obj.systemUsagePerTime, 1 / length(obj.handlers) * sum([obj.handlers.p] ./ obj.t)];
       end
     end
 
@@ -179,6 +184,33 @@ classdef Model < handle
         if (~obj.handlers(i).busy)
           handlersIndexes = [handlersIndexes i];
         end
+      end
+    end
+
+    function queueSizePlot(obj)
+      plot(obj.times, obj.queueSizePerTime);
+    end
+
+    function averageQueueSizePlot(obj)
+      plot(obj.times, obj.averageForEachTime(obj.queueSizePerTime));
+    end
+
+    function transactionsInModelPlot(obj)
+      plot(obj.times, obj.transactionsInHandlersPerTime + obj.queueSizePerTime);
+    end
+
+    function averageTransactionsInModelPlot(obj)
+      plot(obj.times, obj.averageForEachTime(obj.transactionsInHandlersPerTime + obj.queueSizePerTime));
+    end
+
+    function systemUsagePlot(obj)
+      plot(obj.times, obj.systemUsagePerTime);
+    end
+
+    function averageStatPerTime = averageForEachTime(obj, statPerTime)
+      averageStatPerTime = zeros(1, length(statPerTime));
+      for time = 1:length(averageStatPerTime)
+        averageStatPerTime(time) = mean(statPerTime(1:time));
       end
     end
 

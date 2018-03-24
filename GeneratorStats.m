@@ -23,7 +23,7 @@ classdef GeneratorStats < handle
         y = obj.values(2:length(obj.values));
 
         scatter(x, y, 'filled');
-        title('(Xi, Xi+1');
+        title('Зависимость следующего от предыдущего');
       end
 
       function distributionPlot(obj)
@@ -44,6 +44,19 @@ classdef GeneratorStats < handle
 
         bar(narrowedX, narrowedY);
         title('f(x)');
+      end
+
+      function correlationCoefficientPlot(obj, kSize)
+        k = zeros(1, length(obj.values));
+        for j = 1:(length(obj.values)-1)
+          for i = 1:(length(obj.values) - j)
+            k(i) += (obj.values(i) - obj.expected) * (obj.values(i+j) - obj.expected);
+          end
+          k(i) /= length(obj.values) - j;
+          k(i) /= obj.variance^2;
+        end
+        scatter(1:kSize, k(1:kSize), 'filled');
+        title('Коэффициент корелляции');
       end
 
   end
