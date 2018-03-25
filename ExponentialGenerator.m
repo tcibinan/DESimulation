@@ -1,4 +1,4 @@
-classdef PuassonGenerator < handle
+classdef ExponentialGenerator < handle
 
   properties
     lcg
@@ -6,7 +6,7 @@ classdef PuassonGenerator < handle
   end
 
   methods
-    function obj = PuassonGenerator(lcg, m)
+    function obj = ExponentialGenerator(lcg, m)
       obj.lcg = lcg;
       obj.m = m;
     end
@@ -16,7 +16,7 @@ classdef PuassonGenerator < handle
     end
 
     function clone = clone(obj)
-      clone = PuassonGenerator(obj.lcg.clone(), obj.m);
+      clone = ExponentialGenerator(obj.lcg.clone(), obj.m);
     end
 
   end

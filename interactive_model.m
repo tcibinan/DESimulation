@@ -2,7 +2,7 @@ global model;
 
 windowX = 1100;
 windowY = 500;
-plotsPosition = [0.05 0.45 0.6 0.35];
+plotsPosition = [0.05 0.45 0.55 0.35];
 fontSize = 8;
 headersFontSize = 10;
 numbersFontSize = 10;
@@ -16,8 +16,8 @@ defaults.Ma = '10';
 defaults.Ms = '10';
 defaults.handlersCount = '2';
 defaults.queueSize = '34';
-defaults.AgenInit = '42342341';
-defaults.SgenInit = '342452';
+defaults.AgenInit = '1119234';
+defaults.SgenInit = '4324113';
 defaults.handlingQuant = '1';
 
 function text = text(string, position, fontSize)
@@ -67,11 +67,11 @@ function startModulation(source, eventdata, forms, status)
   handlersCount = str2num(get(forms.handlersCountInput , 'String'));
   handlingQuant = str2num(get(forms.handlingQuantInput , 'String'));
   queueSize = str2num(get(forms.queueSizeInput , 'String'));
-  Agen = PuassonGenerator(
+  Agen = ExponentialGenerator(
     LinearCongruentialGenerator(str2num(get(forms.AgenInitInput, 'String'))),
     Ma
   );
-  Sgen = PuassonGenerator(
+  Sgen = ExponentialGenerator(
     LinearCongruentialGenerator(str2num(get(forms.SgenInitInput, 'String'))),
     Ms
   );
@@ -107,7 +107,7 @@ end
 function genStats = retrieveAgenStats(forms)
   transactionsCount = str2num(get(forms.transactionsCountInput, 'String'));
   Ma = str2num(get(forms.MaInput , 'String'));
-  Agen = PuassonGenerator(
+  Agen = ExponentialGenerator(
     LinearCongruentialGenerator(str2num(get(forms.AgenInitInput, 'String'))),
     Ma
   );
@@ -128,7 +128,7 @@ end
 function genStats = retrieveSgenStats(forms)
   transactionsCount = str2num(get(forms.transactionsCountInput, 'String'));
   Ms = str2num(get(forms.MsInput , 'String'));
-  Sgen = PuassonGenerator(
+  Sgen = ExponentialGenerator(
     LinearCongruentialGenerator(str2num(get(forms.SgenInitInput, 'String'))),
     Ms
   );

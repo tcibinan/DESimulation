@@ -7,6 +7,7 @@ classdef GeneratorStats < handle
     variance
     precision = 0.5;
     narrowCoefficient = 3;
+    k;
   end
 
   methods
@@ -16,6 +17,62 @@ classdef GeneratorStats < handle
         obj.values = arrayfun(@(x) gen.next(), 1:n);
         obj.expected = sum(obj.values) / n;
         obj.variance = sum((obj.values - obj.expected) .^ 2) / (n - 1);
+        obj.k = floor(1 + 3.3*log(n));
+      end
+
+      function interval = confidenceInterval(obj, u)
+        delta = u*sqrt(obj.precision/length(obj.values));
+        interval = [obj.expected - delta, obj.expected + delta];
+      end
+
+      function Z = Z(obj, m)
+        Z = sqrt(length(obj.values))*(obj.expected - m)/sqrt(obj.variance);
+      end
+
+      function [Z, X2] = X2(obj, func, a)
+        p = zeros(1, obj.k);
+        h = zeros(1, obj.k);
+
+        % intervals with equal length (gives bad results in current conditions)
+        %
+        % delta = (max(obj.values)-min(obj.values))/obj.k;
+        % from = min(obj.values);
+        % to = from + delta;
+        % for i = 1:obj.k
+        %   p(i) = quad(func, from, to);
+        %   h(i) = sum((obj.values > from) == (obj.values < to));
+        %   from = from + delta;
+        %   to = to + delta;
+        % end
+
+        % intervals with equal h
+
+        number = floor(length(obj.values) / obj.k);
+        sortedValues = sort(obj.values);
+        h(:) = number;
+
+        currentNumber = 0;
+        currentBunch = 1;
+        for i = 1:length(sortedValues)
+          if currentNumber < number
+            currentNumber += 1;
+          else
+            p(currentBunch) = quad(func, sortedValues(i - number), sortedValues(i - 1));
+            currentNumber = 0;
+            currentBunch += 1;
+          end
+        end
+        p(obj.k) = quad(func, sortedValues((currentBunch-1)*number), sortedValues(length(sortedValues)));
+        h(obj.k) += length(obj.values) - sum(h);
+
+        X2 = chi2inv(1-a, obj.k-1);
+        Z = 0;
+        for i = 1:obj.k
+          a = ((h(i) - length(obj.values)*p(i))^2);
+          b = (length(obj.values)*p(i));
+          y = a / b
+          Z += y;
+        end
       end
 
       function nextPreviousScatter(obj)

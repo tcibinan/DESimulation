@@ -1,8 +1,8 @@
 transactionsCount = 1000;
 Ms = 10;
 Ma = 10;
-Agen = PuassonGenerator(LinearCongruentialGenerator(34238443), Ma);
-Sgen = PuassonGenerator(LinearCongruentialGenerator(432434), Ms);
+Agen = ExponentialGenerator(LinearCongruentialGenerator(34238443), Ma);
+Sgen = ExponentialGenerator(LinearCongruentialGenerator(432434), Ms);
 
 AgenStats = GeneratorStats(Agen, transactionsCount);
 
