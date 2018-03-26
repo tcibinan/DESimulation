@@ -60,7 +60,7 @@ classdef Model < handle
     end
 
     function simulate(obj)
-      disp('Simulation has been started');
+      disp('Simulation has started');
 
       while (true)
         prevT = obj.t;

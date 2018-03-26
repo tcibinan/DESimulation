@@ -77,7 +77,7 @@ function startModulation(source, eventdata, forms, status)
   );
 
   global model;
-  model = Model(transactionsCount, Ma, Ms, handlersCount, handlingQuant, queueSize, Agen, Sgen);
+  model = Model(transactionsCount, Ms, Ma, handlersCount, handlingQuant, queueSize, Agen, Sgen);
 
   set(forms.statusText, 'String', status.modelling);
   try
