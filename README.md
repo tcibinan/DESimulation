@@ -1,5 +1,12 @@
-# Discrete-event simulation
+# Имитационная модель системы массового обслуживания
 
-Interactive modelling `interactive_model.m` is supported only through the octave gui interface.
 
-Noninteractive modelling analysis `model_analysis.m`
+Программная часть курсовой работы по теме "Построение и исследование имитационных моделей".
+
+
+Включает в себя как независимые скрипты для вычисления тех или иных метрик,
+так и пользовательский интерфейс, позволяющий проводить моделирование с заданными
+начальными значениями генераторов случайных чисел и параметров моделируемой системы.
+
+
+![UI screenshot](ui_screenshot.png?raw=true)
