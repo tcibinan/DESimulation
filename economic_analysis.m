@@ -8,9 +8,12 @@ T = 2.5 * (10^7);
 
 regressionAnalysis = csvread('regressionAnalysis.csv');
 
-handlersCount = 2:0.1:3;
-Ma = 7:0.5:10;
-Ms = 10:0.5:15;
+% handlersCount = 1:0.5:3;
+% Ma = 5:0.4:15;
+% Ms = 5:0.4:15;
+handlersCount = 1:0.4:4;
+Ma = 3:0.5:17;
+Ms = 5:0.3:10;
 
 [x, y, z] = ndgrid(handlersCount, Ma, Ms);
 plan = [x(:) y(:) z(:)];
@@ -33,6 +36,36 @@ for i = 1:length(plan)
   result(i, :) = [s, localMa, localMs, p, Ns, Nq, Tq, Ts, Ca, Cr, I];
 end
 
-sortedResult = sortrows(result, 11);
+filteredResults = zeros(1, 11);
+j = 0;
+for i = 1:length(result)
+  if (sum(result(i, :) < 0) == 0)
+    j++;
+    filteredResults(j,:) = result(i,:);
+  end
+end
+length(filteredResults)
 
-csvwrite('economicAnalysis.csv', sortedResult);
+sortedByIncreasingI = sortrows(filteredResults, 11);
+
+% empirical sortings
+sortedByDecreasingP = sortrows(filteredResults, -4);
+sortedByOptimal = sortedByIncreasingI;
+for i = 1:length(sortedByIncreasingI)
+  for j = 1:length(sortedByDecreasingP)
+    if (sortedByDecreasingP(j,1:3) == sortedByIncreasingI(i,1:3))
+      break;
+    end
+  end
+  sortedByOptimal(i, 12) = i;
+  sortedByOptimal(i, 13) = j;
+  sortedByOptimal(i, 14) = abs(i-j);
+  if j > 80
+    sortedByOptimal(i, 13) = 0;
+    sortedByOptimal(i, 14) = 0;
+  end
+end
+
+csvwrite('economicAnalysis.csv', sortedByIncreasingI);
+csvwrite('economicAnalysis1.csv', sortedByDecreasingP);
+csvwrite('economicAnalysis2.csv', sortrows(sortedByOptimal, 14));
