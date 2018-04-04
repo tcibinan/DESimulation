@@ -1,6 +1,9 @@
 handlersCount = [2, 3];
 Ma = [7, 10];
 Ms = [10, 15];
+predefinedHandlersCount = 2;
+predefinedMa = 10;
+predefinedMs = 10;
 
 factorAnalysisResults = csvread('factorAnalysis.csv');
 
@@ -25,3 +28,11 @@ for parameter = 4:10
 end
 
 csvwrite('regressionAnalysis.csv', coeffiecients);
+
+p = regression(coeffiecients(1,:), predefinedHandlersCount, predefinedMa, predefinedMs)
+Ns = regression(coeffiecients(2,:), predefinedHandlersCount, predefinedMa, predefinedMs)
+Nq = regression(coeffiecients(3,:), predefinedHandlersCount, predefinedMa, predefinedMs)
+Tq = regression(coeffiecients(4,:), predefinedHandlersCount, predefinedMa, predefinedMs)
+Ts = regression(coeffiecients(5,:), predefinedHandlersCount, predefinedMa, predefinedMs)
+Ca = regression(coeffiecients(6,:), predefinedHandlersCount, predefinedMa, predefinedMs)
+Cr = regression(coeffiecients(7,:), predefinedHandlersCount, predefinedMa, predefinedMs)

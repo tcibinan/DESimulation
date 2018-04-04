@@ -13,7 +13,11 @@ M = AgenStats.expected
 D = AgenStats.variance
 interval = AgenStats.confidenceInterval(1.96)
 Z = AgenStats.Z(Ma)
-[Z, X2] = AgenStats.X2(@(x) (1/Ma)*exp(-(1/Ma)*x), 0.05)
+[Z, Ztable, X2] = AgenStats.X2(@(x) (1/Ma)*exp(-(1/Ma)*x), 0.05);
+disp(['Z = ', num2str(Z)]);
+disp(['X2 = ',  num2str(X2)]);
+csvwrite('AgenZtable.csv', Ztable);
+
 %genStats.densityHistogram();
 %genStats.nextPreviousScatter();
 %genStats.correlationCoefficientPlot(20);
@@ -24,7 +28,10 @@ M = SgenStats.expected
 D = SgenStats.variance
 interval = SgenStats.confidenceInterval(1.96)
 Z = SgenStats.Z(Ma)
-[Z, X2] = SgenStats.X2(@(x) (1/Ma)*exp(-(1/Ma)*x), 0.05)
+[Z, Ztable, X2] = SgenStats.X2(@(x) (1/Ma)*exp(-(1/Ma)*x), 0.05);
+disp(['Z = ', num2str(Z)]);
+disp(['X2 = ',  num2str(X2)]);
+csvwrite('SgenZtable.csv', Ztable);
 %genStats1.densityHistogram();
 %genStats1.nextPreviousScatter();
 %genStats1.correlationCoefficientPlot(20);

@@ -29,7 +29,7 @@ classdef GeneratorStats < handle
         Z = sqrt(length(obj.values))*(obj.expected - m)/sqrt(obj.variance);
       end
 
-      function [Z, X2] = X2(obj, func, a)
+      function [Z, Ztable, X2] = X2(obj, func, a)
         p = zeros(1, obj.k);
         h = zeros(1, obj.k);
 
@@ -65,13 +65,18 @@ classdef GeneratorStats < handle
         p(obj.k) = quad(func, sortedValues((currentBunch-1)*number), sortedValues(length(sortedValues)));
         h(obj.k) += length(obj.values) - sum(h);
 
-        X2 = chi2inv(1-a, obj.k-1);
+        X2 = chi2inv(1-a, obj.k-2);
         Z = 0;
+        Ztable = zeros(obj.k, 3);
         for i = 1:obj.k
           a = ((h(i) - length(obj.values)*p(i))^2);
           b = (length(obj.values)*p(i));
-          y = a / b
+          y = a / b;
           Z += y;
+
+          Ztable(i, 1) = p(i);
+          Ztable(i, 2) = h(i);
+          Ztable(i, 3) = y;
         end
       end
 
